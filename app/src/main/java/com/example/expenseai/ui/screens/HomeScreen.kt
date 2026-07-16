@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.expenseai.ui.components.SpendingCard
 import com.example.expenseai.ui.components.VoiceButton
+import com.example.expenseai.parser.ExpenseParser
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,9 +39,24 @@ fun HomeScreen() {
                 val matches = result.data?.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS
                 )
-
                 if (!matches.isNullOrEmpty()) {
+
                     spokenText = matches[0]
+
+                    val expense =
+                        ExpenseParser.parse(spokenText)
+
+                    spokenText =
+                        """
+Amount : ₹${expense.amount}
+
+Category : ${expense.category}
+
+Merchant : ${expense.merchant}
+
+Date : ${expense.date}
+        """.trimIndent()
+
                 }
 
             }
