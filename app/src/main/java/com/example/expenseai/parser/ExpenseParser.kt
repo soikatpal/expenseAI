@@ -63,8 +63,8 @@ object ExpenseParser {
             amount = amount,
             category = category,
             merchant = merchant,
-            description = text,
-            date = "Today"
+            note = text,
+            expenseDate = System.currentTimeMillis()
         )
 
     }
