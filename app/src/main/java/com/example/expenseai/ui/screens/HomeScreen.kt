@@ -6,20 +6,18 @@ import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -33,7 +31,6 @@ import com.example.expenseai.database.ExpenseDatabaseHelper
 import com.example.expenseai.model.Expense
 import com.example.expenseai.parser.ExpenseParser
 import com.example.expenseai.ui.components.DetectedExpenseCard
-import com.example.expenseai.ui.components.RecentExpensesSection
 import com.example.expenseai.ui.components.SpendingCard
 import com.example.expenseai.ui.components.VoiceSection
 import kotlinx.coroutines.launch
@@ -109,118 +106,155 @@ fun HomeScreen() {
 
     ) { padding ->
 
-        Column(
+        LazyColumn(
 
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = 16.dp,
+                bottom = 32.dp
+            ),
 
             verticalArrangement = Arrangement.spacedBy(20.dp)
 
         ) {
 
-            SpendingCard()
+            item {
 
-            VoiceSection(
+                SpendingCard()
 
-                recognizedSpeech = recognizedSpeech,
+            }
 
-                onMicClicked = {
+            item {
 
-                    val intent =
-                        Intent(
+                VoiceSection(
+
+                    recognizedSpeech = recognizedSpeech,
+
+                    onMicClicked = {
+
+                        val intent = Intent(
                             RecognizerIntent.ACTION_RECOGNIZE_SPEECH
                         )
 
-                    intent.putExtra(
-                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-                    )
+                        intent.putExtra(
+                            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                        )
 
-                    intent.putExtra(
-                        RecognizerIntent.EXTRA_PROMPT,
-                        "Speak your expense..."
-                    )
+                        intent.putExtra(
+                            RecognizerIntent.EXTRA_PROMPT,
+                            "Speak your expense..."
+                        )
 
-                    speechLauncher.launch(intent)
+                        speechLauncher.launch(intent)
 
-                }
+                    }
 
-            )
+                )
 
-            DetectedExpenseCard(
-                expense = detectedExpense
-            )
+            }
 
-            Button(
+            item {
 
-                onClick = {
+                DetectedExpenseCard(
+                    expense = detectedExpense
+                )
 
-                    detectedExpense?.let {
+            }
 
-                        val id =
-                            database.insertExpense(it)
+            item {
 
-                        if (id > 0) {
+                Button(
 
-                            recentExpenses =
-                                database.getAllExpenses()
+                    onClick = {
 
-                            scope.launch {
+                        detectedExpense?.let {
 
-                                snackbarHostState.showSnackbar(
-                                    "Expense Saved Successfully"
-                                )
+                            val id =
+                                database.insertExpense(it)
+
+                            if (id > 0) {
+
+                                recentExpenses =
+                                    database.getAllExpenses()
+
+                                scope.launch {
+
+                                    snackbarHostState.showSnackbar(
+                                        "Expense Saved Successfully"
+                                    )
+
+                                }
 
                             }
 
                         }
 
-                    }
+                    },
 
-                },
+                    modifier = Modifier.fillMaxWidth()
 
-                modifier = Modifier.fillMaxWidth()
+                ) {
 
-            ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = null
+                    )
 
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = null
-                )
+                    Spacer(
+                        modifier = Modifier.width(8.dp)
+                    )
 
-                Spacer(
-                    modifier = Modifier.height(0.dp)
-                )
+                    Text("Save Expense")
 
-                Text(" Save Expense")
+                }
+
+            }
+            item {
+
+                Button(
+
+                    onClick = {
+
+                        database.deleteAllExpenses()
+
+                        recentExpenses =
+                            database.getAllExpenses()
+
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "All expenses deleted"
+                            )
+                        }
+
+                    },
+
+                    modifier = Modifier.fillMaxWidth()
+
+                ) {
+
+                    Text("Clear All (Testing)")
+
+                }
 
             }
 
-            Button(
+            item {
 
-                onClick = {
-
-                    database.deleteAllExpenses()
-
-                    recentExpenses =
-                        database.getAllExpenses()
-
-                },
-
-                modifier = Modifier.fillMaxWidth()
-
-            ) {
-
-                Text("Clear All (Testing)")
+                Text(
+                    text = "Recent Expenses"
+                )
 
             }
 
-            RecentExpensesSection(
-                expenses = recentExpenses
-            )
+            items(recentExpenses) { expense ->
+
+                DetectedExpenseCard(
+                    expense = expense
+                )
+
+            }
 
         }
 
