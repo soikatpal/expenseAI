@@ -1,19 +1,54 @@
 package com.example.expenseai.repository
 
-import android.content.Context
-import com.example.expenseai.database.ExpenseDatabaseHelper
+import com.example.expenseai.database.ExpenseDao
+import com.example.expenseai.mapper.toEntity
+import com.example.expenseai.mapper.toExpense
 import com.example.expenseai.model.Expense
 
-class ExpenseRepository(context: Context) {
+class ExpenseRepository(
+    private val dao: ExpenseDao
+) {
 
-    private val database = ExpenseDatabaseHelper(context)
+    suspend fun saveExpense(
+        expense: Expense
+    ) {
 
-    fun saveExpense(expense: Expense): Long {
-        return database.insertExpense(expense)
+        dao.insertExpense(
+            expense.toEntity()
+        )
+
     }
 
-    fun getAllExpenses(): List<Expense> {
-        return database.getAllExpenses()
+    suspend fun getAllExpenses(): List<Expense> {
+
+        return dao
+            .getAllExpenses()
+            .map {
+                it.toExpense()
+            }
+
+    }
+
+    suspend fun deleteExpense(
+        expense: Expense
+    ) {
+
+        dao.deleteExpense(
+            expense.toEntity()
+        )
+
+    }
+
+    suspend fun deleteAllExpenses() {
+
+        dao.deleteAllExpenses()
+
+    }
+
+    suspend fun getTodayTotal(): Double {
+
+        return dao.getTodayTotal()
+
     }
 
 }

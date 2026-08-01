@@ -2,18 +2,72 @@ package com.example.expenseai.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.expenseai.database.ExpenseDatabase
 import com.example.expenseai.model.Expense
 import com.example.expenseai.repository.ExpenseRepository
+import kotlinx.coroutines.launch
 
 class ExpenseViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ExpenseRepository(application)
+    private val dao =
+        ExpenseDatabase
+            .getDatabase(application)
+            .expenseDao()
 
-    fun saveExpense(expense: Expense): Long {
-        return repository.saveExpense(expense)
+    private val repository =
+        ExpenseRepository(dao)
+
+    fun saveExpense(
+        expense: Expense
+    ) {
+
+        viewModelScope.launch {
+
+            repository.saveExpense(expense)
+
+        }
+
     }
 
-    fun getExpenses(): List<Expense> {
-        return repository.getAllExpenses()
+    fun getExpenses(
+        onResult: (List<Expense>) -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            val expenses =
+                repository.getAllExpenses()
+
+            onResult(expenses)
+
+        }
+
     }
+
+    fun deleteAllExpenses() {
+
+        viewModelScope.launch {
+
+            repository.deleteAllExpenses()
+
+        }
+
+    }
+
+    fun getTodayTotal(
+        onResult: (Double) -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            val total =
+                repository.getTodayTotal()
+
+            onResult(total)
+
+        }
+
+    }
+
 }
