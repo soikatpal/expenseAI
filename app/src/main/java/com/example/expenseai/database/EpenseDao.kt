@@ -31,10 +31,31 @@ interface ExpenseDao {
         SELECT COALESCE(SUM(amount),0)
         FROM expenses
         WHERE date(expenseDate/1000,'unixepoch','localtime')
-            =
-            date('now','localtime')
+              =
+              date('now','localtime')
         """
     )
     suspend fun getTodayTotal(): Double
+
+    @Query(
+        """
+        SELECT COUNT(*)
+        FROM expenses
+        WHERE date(expenseDate/1000,'unixepoch','localtime')
+              =
+              date('now','localtime')
+        """
+    )
+    suspend fun getTodayExpenseCount(): Int
+
+    @Query(
+        """
+        SELECT *
+        FROM expenses
+        ORDER BY expenseDate DESC
+        LIMIT 1
+        """
+    )
+    suspend fun getLatestExpense(): ExpenseEntity?
 
 }

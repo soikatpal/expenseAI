@@ -70,4 +70,34 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
 
     }
 
+    fun getTodayExpenseCount(
+        onResult: (Int) -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            val count =
+                repository.getTodayExpenseCount()
+
+            onResult(count)
+
+        }
+
+    }
+
+    fun getLatestExpense(
+        onResult: (Expense?) -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            val expense =
+                repository.getLatestExpense()
+
+            onResult(expense)
+
+        }
+
+    }
+
 }

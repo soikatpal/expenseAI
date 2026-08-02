@@ -51,4 +51,18 @@ class ExpenseRepository(
 
     }
 
+    suspend fun getTodayExpenseCount(): Int {
+
+        return dao.getTodayExpenseCount()
+
+    }
+
+    suspend fun getLatestExpense(): Expense? {
+
+        return dao
+            .getLatestExpense()
+            ?.toExpense()
+
+    }
+
 }
