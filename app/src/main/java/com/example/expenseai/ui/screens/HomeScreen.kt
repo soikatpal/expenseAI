@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.expenseai.model.Expense
 import com.example.expenseai.parser.ExpenseParser
 import com.example.expenseai.ui.components.DetectedExpenseCard
+import com.example.expenseai.ui.components.ExpenseListItem
 import com.example.expenseai.ui.components.SpendingCard
 import com.example.expenseai.ui.components.VoiceSection
 import com.example.expenseai.viewmodel.ExpenseViewModel
@@ -297,7 +298,8 @@ fun HomeScreen() {
 
             items(recentExpenses) { expense ->
 
-                DetectedExpenseCard(
+                ExpenseListItem(
+
                     expense = expense
                 )
 
